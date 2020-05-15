@@ -6,6 +6,10 @@ Tool that allows to control multiple mupen windows at once
 
 2.To properly use savestates you must copy whole mupen directory as many times as you need (e.g. you need 5 mupen windows then you need 5 copies). This is because simply running one .exe multiple times (or more than one exe but in same directory) causes overwriting same savestate with every mupen, despite TASing different "branches". Copying whole directory sounds weird but works.
 
+What do these checkboxes do:
+-Process keyup messages: makes program react to releasing keys, better have this checked.
+
+-Force input update: Basically spams mupens with input data, currently this will cause crazy desyncs, but also allows to use gamepad.
 # Known bugs
 -DeSyNcS
 
