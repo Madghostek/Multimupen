@@ -1,5 +1,6 @@
 # Multimupen
-Tool that allows to control multiple mupen windows at once
+Tool that allows to control multiple mupen windows at once.
+Download it from releases tab
 
 # How to setup
 1.Place Multimupen.exe and TASDI.dll in one directory
