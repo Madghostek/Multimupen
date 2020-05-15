@@ -3,7 +3,7 @@ Tool that allows to control multiple mupen windows at once.
 Download it from releases tab
 
 # How to setup
-1.Place Multimupen.exe and TASDI.dll in one directory
+1.Place Multimupen.exe and TASDI.dll in one directory, then copy ReceiverPlugin.dll to mupen plugin folder and select it as input plugin in settings.
 
 2.To properly use savestates you must copy whole mupen directory as many times as you need (e.g. you need 5 mupen windows then you need 5 copies). This is because simply running one .exe multiple times (or more than one exe but in same directory) causes overwriting same savestate with every mupen, despite TASing different "branches". Copying whole directory sounds weird but works.
 
