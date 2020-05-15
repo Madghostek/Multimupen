@@ -14,7 +14,7 @@ What do these checkboxes do:
 # Known bugs
 -DeSyNcS
 
--Sometimes you can't savestate, but restarting everything seems to fix this
+-Sometimes you can't savestate, ~~but restarting everything seems to fix this~~ the problem lies in how mupen checks for hotkeys, if you have savestate defined as multiple key combination, like a default Shift+F#, you must hold shift long enough so every mupen gets to see the shift. I hope its possible to fix it.
 
 # Compiling
 I've provided a Code Blocks project file because that's what I use to code (I think VS should be able to import it? If no then I will make a .sln later). There are 3 build targets: - "Release"/"Debug" for main .exe (debug shows a cmd window with debug output) and "Receiver" for compiling the .dll.
