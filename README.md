@@ -12,4 +12,4 @@ Tool that allows to control multiple mupen windows at once
 -Sometimes you can't savestate, but restarting everything seems to fix this
 
 # Compiling
-I've provided a Code Blocks project file because that's what I use to code (I think VS should be able to import it? If no then I will make a .sln later)
+I've provided a Code Blocks project file because that's what I use to code (I think VS should be able to import it? If no then I will make a .sln later). There are 3 build targets: - "Release"/"Debug" for main .exe (debug shows a cmd window with debug output) and "Plugin" for compiling the .dll.
