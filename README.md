@@ -7,6 +7,8 @@ Download it from releases tab
 
 2.To properly use savestates you must copy whole mupen directory as many times as you need (e.g. you need 5 mupen windows then you need 5 copies). This is because simply running one .exe multiple times (or more than one exe but in same directory) causes overwriting same savestate with every mupen, despite TASing different "branches". Copying whole directory sounds weird but works.
 
+3.If you're using Win10 then you will experience tasinput going out of focus issue, just like it happens without multimupen. To fix this simply click and hold on tasinput, drag to the multimupen window and click. I can't fix this because that's how tasinput was designed, it worked fine in the past so nobody questioned it.
+
 What do these checkboxes do:
 
 -Process keyup messages: makes program react to releasing keys, better have this checked.
