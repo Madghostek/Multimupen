@@ -2,14 +2,12 @@
 #define TYPES_HPP_INCLUDED
 
 //main
-#define CHK_KEYUP 101
+#define CHK_REP 101
 #define CHK_FORCE 102
 #define TXT_STATUS 103
 
 //plugin
 #define CHK_DBG 201
-
-#define ID_READY 42069
 //You can either access it like buttons->R_DPAD or use Value as a compiled data.
 //Used in GetKeys() to return input to emulator as a DWORD
 typedef union {

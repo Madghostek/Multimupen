@@ -7,9 +7,9 @@
 #include <time.h>
 #include "window.hpp"
 #include "config.hpp"
-HWND sender,label;
+HWND label;
 DWORD Value;
-int id,msgCount = 0;
+int id,msgCount = 0; //debug id for testing
 
 typedef struct {
     BOOL showDebug;
@@ -27,27 +27,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     break;
     case WM_COPYDATA:
         {
-            msgCount++;
             char txt[10];
-            sprintf(txt,"count: %i",msgCount);
+            sprintf(txt,"count: %i",++msgCount);
             SendMessage(label,WM_SETTEXT,0,(LPARAM)txt);
             COPYDATASTRUCT* data = (COPYDATASTRUCT*)lParam;
             Value = *(DWORD*)(data->lpData);
-            if (!IsWindow(sender)) sender = FindWindow("InputSenderClass",0);
-            char buf [30];
-            sprintf(buf,"before, id: %i",id);
-            //MessageBox(0,buf,"receiver",0);
-            SendMessage(sender,ID_READY,0,0);
-            if (IsWindow(sender))
-            {
-                sprintf(buf,"mupen exists, id: %i",id);
-                //MessageBox(0,buf,"receiver",0);
-            }
-            else
-            {
-                sprintf(buf,"error id: %i",id);
-                //MessageBox(0,buf,"receiver",0);
-            }
         }
     break;
     case WM_DESTROY:

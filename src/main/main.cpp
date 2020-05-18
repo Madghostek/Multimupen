@@ -1,17 +1,13 @@
-//at the moment can desync when two keys are hit at once
 #include <windows.h>
 #include <commctrl.h>
 #include <stdio.h>
 #include <vector>
 #include "../types.hpp"
 #include <thread>
+#include <time.h>
 HWND hDebugwnd;
 std::vector <HWND> hMupenwnd;
 BOOL stopThread = FALSE;
-int lastIdx = 0; //used to continue onto next window
-BOOL COnlyFlag;
-WPARAM wSaved;
-LPARAM lSaved;
 
 //winapi controls
 HWND hCheckKeyup, hBtnRefresh, hBtnConfig, hCheckForce, hTextPlugininfo , hTextStatus;
@@ -27,9 +23,7 @@ Type_old_initiateController Init;
 Type_RomOpen RomOpen;
 Type_GetKeys GetKeys;
 
-BUTTONS Data;
 CONTROL ctrl[4];
-HINSTANCE hInst;
 
 BOOL CALLBACK CheckIfMupen(HWND hwnd,LPARAM lparam)
 {
@@ -44,7 +38,6 @@ BOOL CALLBACK CheckIfMupen(HWND hwnd,LPARAM lparam)
 
 void RefreshMupens(BOOL msg)
 {
-    lastIdx = 0;
     hMupenwnd.clear();
     EnumWindows(CheckIfMupen,0);
     char buf[32];
@@ -61,52 +54,50 @@ void RefreshMupens(BOOL msg)
     }
     SendMessage(hTextStatus,WM_SETTEXT,0,(LPARAM)buf);
 }
-//Sends controller with optional keystroke data
-//I think windows ensures message order anyway because doing this instead of for loop doesn't fix anything...
-void Step(HWND hwnd, WPARAM wParam, LPARAM lParam , BOOL COnly)
+//Sends information to all mupen windows
+void SendData(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (wParam) //if wParam is 0 then its a "next step"
-    {
-        GetKeys(0,&Data);  //we only want to update controller on first step
-        wSaved=wParam;
-        lSaved=lParam;
-    }
-    else
-    {
-        wParam=wSaved; //restore params
-        lParam=lSaved;
-    }
+    int cycle = 0; //debug
+    BUTTONS Data;
+    GetKeys(0,&Data);
+
     //prepare data to send with WM_COPYDATA
     COPYDATASTRUCT cds;
     cds.lpData = &Data.Value;
     cds.dwData = 1;
     cds.cbData = sizeof(DWORD);
-    //printf("Step %i key: %i\n",lastIdx,wParam); //seems to be okay???
-    HWND handle = hMupenwnd[lastIdx];
-    lastIdx=(lastIdx+1)%(hMupenwnd.size()); //loop back to 0
-    if (!IsWindow(handle))
+    printf("---\n");
+    for (HWND handle : hMupenwnd)
     {
-        MessageBox(0,"Mupen window not found. Did you close it?","Error",0x30L);
-        hMupenwnd.clear();
-        lastIdx=0;
-        return;
+        printf("window #%i, key: %i, uMsg: %i\n",cycle++,wParam,uMsg);
+        if (!IsWindow(handle))
+        {
+            MessageBox(0,"Mupen window not found. Did you close it?","Error",0x30L);
+            hMupenwnd.clear();
+            return;
+        }
+        hDebugwnd = GetWindow(handle,GW_CHILD); //its the plugin window that reads data because I'm not recompiling mupen
+        if (!hDebugwnd)
+        {
+            MessageBox(0,"Couldn't communicate with receiver plugin, make sure it's selected in mupen settings.","Error",0x30L);
+            hMupenwnd.clear();
+            return;
+        }
+        switch (uMsg)
+        {
+            //If this is done inside receiver then mupen reads garbage key data because windows is buggy and sucks.
+            //PostMessage fixes hotkeys problem
+            //Note: order of COPYDATA and KEYDOWN/UP is important
+            case WM_KEYUP:
+            case WM_KEYDOWN: SendMessage(hDebugwnd,WM_COPYDATA,(WPARAM)hwnd,(LPARAM)(PVOID)&cds); PostMessage(handle,uMsg,wParam,lParam);
+            break;
+            case WM_COMMAND: PostMessage(handle,WM_COMMAND,1063,0);
+            break;
+            case WM_COPYDATA: SendMessage(hDebugwnd,WM_COPYDATA,(WPARAM)hwnd,(LPARAM)(PVOID)&cds);
+            break;
+        }
+        hDebugwnd = NULL;
     }
-    hDebugwnd = GetWindow(handle,GW_CHILD); //its the plugin window that reads data because I'm not recompiling mupen
-    if (!hDebugwnd)
-    {
-        MessageBox(0,"Couldn't communicate with receiver plugin, make sure it's selected in mupen settings.You will need to refresh now.","Error",0x30L);
-        hMupenwnd.clear();
-        lastIdx=0;
-        return;
-    }
-    SendMessage(hDebugwnd,WM_COPYDATA,(WPARAM)hwnd,(LPARAM)(PVOID)&cds);
-    //If this is done inside receiver then mupen reads garbage key data because windows is buggy and sucks.
-    if (!COnly)
-    {
-        SendMessage(handle,WM_KEYDOWN,wParam,lSaved);
-        SendMessage(handle,WM_KEYUP,wParam,lSaved);
-    }
-    hDebugwnd = NULL;
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -115,6 +106,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         case WM_COMMAND:
         {
+            //hwnd is not constant so no switch case?
             if ((HWND)lParam==hBtnRefresh) RefreshMupens(1);
             else if ((HWND)lParam==hBtnConfig) DllConfig(hwnd);
         }
@@ -123,25 +115,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         //case WM_LBUTTONDOWN: SetCapture(hwnd); break;
         //case WM_LBUTTONUP: ReleaseCapture(); break;
         //case WM_MOUSEMOVE:
-        case ID_READY:
-        {
-            if (lastIdx) Step(hwnd,0,0,COnlyFlag); //COnlyFlag is stored between steps
-        }
         break;
         case WM_KEYUP:
         {
-            if (!IsDlgButtonChecked(hwnd, CHK_KEYUP))
-            {
-                return DefWindowProc(hwnd, uMsg,wParam,lParam);;
-            }
-            COnlyFlag=TRUE;
-            Step(hwnd,wParam,lParam,1);
+            SendData(hwnd, uMsg, wParam, lParam);
         }
         break;
         case WM_KEYDOWN:
         {
-            COnlyFlag=FALSE;
-            Step(hwnd,wParam,lParam,0);
+            if (!IsDlgButtonChecked(hwnd, CHK_REP) || !(lParam&0x40000000)) //disable holding keys, reduces desync probability
+            {
+                SendData(hwnd, WM_KEYDOWN, wParam, lParam);
+            }
         }
         break;
         case WM_DESTROY:
@@ -151,23 +136,26 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
         default:
         {
-            return DefWindowProc(hwnd, uMsg,wParam,lParam);
+            return DefWindowProc(hwnd, uMsg, wParam, lParam);
         }
     }
     return 0;
 }
 //I don't care if this is bad I cba to implement joystick detection
-//update: its bad and desyncs like crazy
+//update: its bad and desyncs like crazy but I'll leave it for now
 void loop(HWND hwnd)
 {
     while (!stopThread)
     {
-        if (IsDlgButtonChecked(hwnd, CHK_FORCE) && hMupenwnd.size())
+        if (IsDlgButtonChecked(hwnd, CHK_FORCE) && hMupenwnd.size()) //if checked send joystick info
         {
-            COnlyFlag=TRUE;
-            Step(hwnd,0,0,1);
+            SendData(hwnd,WM_COPYDATA,0,0);
+            Sleep(10);
         }
-        Sleep(1000/60); //so it doesn't completely lag the system
+        else
+        {
+            Sleep(200); //so it doesn't completely lag the system
+        }
     }
     return;
 }
@@ -186,7 +174,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
     HINSTANCE hTAS=LoadLibraryA(".\\TASDI.dll");
     if (hTAS==NULL)
     {
-        MessageBoxA(0,"TASinput dll not found","Error",0x30L);
+        MessageBoxA(0,"TASDI.dll not found","Error",0x30L);
         return -1;
     }
 
@@ -223,7 +211,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 
     HFONT hfont0 = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
     HWND hwnd = CreateWindowEx(WS_EX_LEFT, CLASS_NAME, "Multimupen", WS_CAPTION | WS_GROUP | WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT, 290, 133, 0, 0, hInst, 0);
-    hCheckKeyup = CreateWindowEx(0, WC_BUTTON, "Process keyup messages", WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000003, 119, 42, 138, 13, hwnd, (HMENU)CHK_KEYUP, hInst, 0);
+    hCheckKeyup = CreateWindowEx(0, WC_BUTTON, "Disable key repeat", WS_VISIBLE | WS_CHILD | WS_TABSTOP | 0x00000003, 119, 42, 138, 13, hwnd, (HMENU)CHK_REP, hInst, 0);
     hBtnRefresh = CreateWindowEx(0, WC_BUTTON, "Refresh", WS_VISIBLE | WS_CHILD | WS_TABSTOP, 119, 11, 66, 23, hwnd, (HMENU)40001, hInst, 0);
     hBtnConfig = CreateWindowEx(0, WC_BUTTON, "Input plugin config", WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_MULTILINE | 0x00000001, 11, 11, 90, 39, hwnd, (HMENU)40000, hInst, 0);
     hCheckForce = CreateWindowEx(0, WC_BUTTON, "Force input update (experimental)", WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_MULTILINE | 0x00000003, 119, 59, 150, 28, hwnd, (HMENU)CHK_FORCE, hInst, 0);

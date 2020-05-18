@@ -65,3 +65,44 @@
 	"../types.hpp"
 	<thread>
 
+1589819167 source:c:\users\tomek\desktop\multimupen-master\src\main\main.cpp
+	<windows.h>
+	<commctrl.h>
+	<stdio.h>
+	<vector>
+	"../types.hpp"
+	<thread>
+	<time.h>
+
+1589805536 c:\users\tomek\desktop\multimupen-master\src\types.hpp
+
+1589545517 source:c:\users\tomek\desktop\multimupen-master\src\main\resource.rc
+
+1589545517 source:c:\users\tomek\desktop\multimupen-master\src\plugin\config.cpp
+	<windows.h>
+	<commctrl.h>
+	<fstream>
+	"../types.hpp"
+	"config.hpp"
+
+1589545517 c:\users\tomek\desktop\multimupen-master\src\plugin\config.hpp
+
+1589821550 source:c:\users\tomek\desktop\multimupen-master\src\plugin\main.cpp
+	<windows.h>
+	<cstdio>
+	"window.hpp"
+	"../types.hpp"
+	"config.hpp"
+
+1589545517 c:\users\tomek\desktop\multimupen-master\src\plugin\window.hpp
+
+1589821377 source:c:\users\tomek\desktop\multimupen-master\src\plugin\window.cpp
+	<windows.h>
+	<fstream>
+	<cstdio>
+	<cstdlib>
+	<string>
+	<time.h>
+	"window.hpp"
+	"config.hpp"
+

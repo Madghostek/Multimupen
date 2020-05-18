@@ -13,7 +13,7 @@ exp void GetDllInfo(PLUGIN_INFO * PluginInfo)
 {
     PluginInfo->Type = 4;
     PluginInfo->Version = 1;
-    sprintf(PluginInfo->Name,"Mupen Receiver");
+    sprintf(PluginInfo->Name,"Receiver Plugin");
     PluginInfo->NormalMemory  = FALSE;
     PluginInfo->MemoryBswaped = FALSE;
 }
