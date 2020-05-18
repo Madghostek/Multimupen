@@ -11,13 +11,25 @@ Download it from releases tab
 
 What do these checkboxes do:
 
--Process keyup messages: makes program react to releasing keys, better have this checked.
+~~* Process keyup messages: makes program react to releasing keys, better have this checked.~~ Now set by default
 
--Force input update: Basically spams mupens with input data, currently this will cause crazy desyncs, but also allows to use gamepad.
+* Disable key repeat - Makes you unable to spam key by holding, makes tasing in frame advance desync-free afaik.
+
+* Force input update: Basically spams mupens with input data, currently this will cause crazy desyncs, but also allows to use gamepad.
+
+# How to TAS without desyncs
+Due to how this program works it is common for desyncs to happen, so far I wasn't able to fix all causes but here are some tips to minimize them:
+1. Don't record input when mupen is running at full speed, It will easily desync your run! Always use frame advance.
+2. It's helpful to record .m64 on all windows at once instead of only one, so you can track if one window desynced, however you must start recording at the same time (so just pause before starting recording).
+3. You can fast forward, but make sure to sync every window afterwards so the frame count is the same everywhere. (This is why tasing at full speed desyncs too btw)
+4. Don't load savestates that weren't made during recording (same thing as in normal TASing). A good idea is to save 1-9 slots at the start
+
+If a desync happened anyway you will have to start recording from the point where it desynced, so it's a good idea to check every some time if everything looks good.
+
 # Known bugs
--DeSyNcS
+* Version v1.1 still desyncs when running at full speed, this probably won't be fixed, read previous section.
 
--Sometimes you can't savestate, ~~but restarting everything seems to fix this~~ the problem lies in how mupen checks for hotkeys, if you have savestate defined as multiple key combination, like a default Shift+F#, you must hold shift long enough so every mupen gets to see the shift. I hope its possible to fix it.
+Report any issues pls
 
 # Compiling
 I've provided a Code Blocks project file because that's what I use to code (I think VS should be able to import it? If no then I will make a .sln later). There are 3 build targets: - "Release"/"Debug" for main .exe (debug shows a cmd window with debug output) and "Receiver" for compiling the .dll.
