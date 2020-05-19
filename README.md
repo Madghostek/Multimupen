@@ -32,4 +32,5 @@ If a desync happened anyway you will have to start recording from the point wher
 Report any issues pls
 
 # Compiling
-I've provided a Code Blocks project file because that's what I use to code (I think VS should be able to import it? If no then I will make a .sln later). There are 3 build targets: - "Release"/"Debug" for main .exe (debug shows a cmd window with debug output) and "Receiver" for compiling the .dll.
+* Code Blocks (.cbp): There are 3 build targets: - "Release"/"Debug" for main .exe (debug shows a cmd window with debug output) and "Receiver" for compiling the .dll.
+* Visual Studio (.sln): There are 2 projects, one for plugin and one for .exe, this time the Debug config won't make console appear because VS doesn't do it automatically. Also building will generate tons of unnecesary files.
