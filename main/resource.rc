@@ -1,0 +1,2 @@
+POKEY ICON "icon.ico"
+1 24 "Multimupen.exe.Manifest" //24 means RT_MANIFEST and links manifest inside .exe
